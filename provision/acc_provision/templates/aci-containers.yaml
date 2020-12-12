@@ -412,7 +412,7 @@ data:
         "install-istio": {{ config.istio_config.install_istio|json }},
         "istio-profile": {{ config.istio_config.install_profile|json }},
         {% endif %}
-        {% if not config.aci_config.capic %}
+        {% if not config.aci_config.capic and config.kube_config.opflex_mode != "overlay" %}
         "aci-podbd-dn": {{config.aci_config.pod_bd_dn|json}},
         "aci-nodebd-dn": {{config.aci_config.node_bd_dn|json}},
         {% endif %}

@@ -739,9 +739,12 @@ def config_validate(flavor_opts, config):
     }
 
     if isOverlay(config["flavor"]):
-        extra_checks = {
-            "aci_config/vrf/region": (get(("aci_config", "vrf", "region")), required),
-        }
+        if (config["aci_config"]["capic"]):
+            extra_checks = {
+                "aci_config/vrf/region": (get(("aci_config", "vrf", "region")), required),
+            }
+        else:
+            extra_checks = {}
     else:
         extra_checks = {
             "aci_config/aep": (get(("aci_config", "aep")), required),
