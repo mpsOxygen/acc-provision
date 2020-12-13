@@ -716,28 +716,38 @@ def config_validate(flavor_opts, config):
         if x else Raise(Exception("Invalid name"))
     get = lambda t: functools.reduce(lambda x, y: x and x.get(y), t, config)
 
-    checks = {
-        # ACI config
-        "aci_config/system_id": (get(("aci_config", "system_id")),
-                                 lambda x: required(x) and isname(x, 32)),
-        "aci_config/apic_refreshtime": (get(("aci_config", "apic_refreshtime")),
-                                        is_valid_refreshtime),
-        "aci_config/apic_host": (get(("aci_config", "apic_hosts")), required),
-        "aci_config/vrf/name": (get(("aci_config", "vrf", "name")), required),
-        "aci_config/vrf/tenant": (get(("aci_config", "vrf", "tenant")),
-                                  required),
-        # Istio config
-        "istio_config/install_profile": (get(("istio_config", "install_profile")),
-                                         is_valid_istio_install_profile),
-        "kube_config/image_pull_policy": (get(("kube_config", "image_pull_policy")),
-                                          is_valid_image_pull_policy),
-        # Network Config
-        "net_config/pod_subnet": (get(("net_config", "pod_subnet")),
-                                  required),
-        "net_config/node_subnet": (get(("net_config", "node_subnet")),
-                                   required),
-    }
-
+    if not isOverlay(config["flavor"]) or config["aci_config"]["capic"]:
+        checks = {
+            # ACI config
+            "aci_config/system_id": (get(("aci_config", "system_id")),
+                                     lambda x: required(x) and isname(x, 32)),
+            "aci_config/apic_refreshtime": (get(("aci_config", "apic_refreshtime")),
+                                            is_valid_refreshtime),
+            "aci_config/apic_host": (get(("aci_config", "apic_hosts")), required),
+            "aci_config/vrf/name": (get(("aci_config", "vrf", "name")), required),
+            "aci_config/vrf/tenant": (get(("aci_config", "vrf", "tenant")),
+                                      required),
+            # Istio config
+            "istio_config/install_profile": (get(("istio_config", "install_profile")),
+                                             is_valid_istio_install_profile),
+            "kube_config/image_pull_policy": (get(("kube_config", "image_pull_policy")),
+                                              is_valid_image_pull_policy),
+            # Network Config
+            "net_config/pod_subnet": (get(("net_config", "pod_subnet")),
+                                      required),
+            "net_config/node_subnet": (get(("net_config", "node_subnet")),
+                                       required),
+        }
+    else:
+        checks = {
+            "kube_config/image_pull_policy": (get(("kube_config", "image_pull_policy")),
+                                              is_valid_image_pull_policy),
+            # Network Config
+            "net_config/pod_subnet": (get(("net_config", "pod_subnet")),
+                                      required),
+            "net_config/node_subnet": (get(("net_config", "node_subnet")),
+                                       required),
+        }
     if isOverlay(config["flavor"]):
         if (config["aci_config"]["capic"]):
             extra_checks = {
@@ -1591,6 +1601,9 @@ def provision(args, apic_file, no_random):
     if not callable(gen):
         gen = globals()[gen]
     gen(config, output_file, output_tar, operator_cr_output_file)
+
+    if flavor == "k8s-overlay":
+        return True
 
     if (config['net_config']['second_kubeapi_portgroup'] and prov_apic is not None):
         apic = get_apic(config)

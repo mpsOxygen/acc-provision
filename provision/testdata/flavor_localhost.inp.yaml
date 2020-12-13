@@ -6,24 +6,12 @@ aci_config:
   use_legacy_kube_naming_convention: True
   apic_hosts:                           # List of APIC hosts to connect to for APIC API access
     - 127.0.0.1
-  vmm_domain:                           # Kubernetes VMM domain configuration
-    domain: kube
-    controller: kube
   # The following resources must already exist on the APIC,
   # this is a reference to use them
-  aep: dummy-value                        # The attachment profile for ports/VPCs connected to this cluster
   vrf:                                  # VRF used to create all subnets used by this Kubernetes cluster
     name: defaultVrf          # This should exist, the provisioning tool does not create it
     tenant: kube        # This can be tenant for this cluster (system-id) or common
   overlay_vrf: defaultVrf
-  l3out:                                # L3out to use for this kubernetes cluster (in the VRF above)
-    name: l3out-v1              # This is used to provision external service IPs/LB
-    external_networks: 
-        - l3out_v1_net        # This should also exist, the provisioning tool does not create iti
-  sync_login:
-    username: kube
-    certfile: user.crt
-    keyfile: user.key
 #
 # Networks used by Kubernetes
 #
