@@ -4,8 +4,6 @@
 aci_config:
   system_id: kube                       # Every opflex cluster on the same fabric must have a distict ID
   use_legacy_kube_naming_convention: True
-  apic_hosts:                           # List of APIC hosts to connect to for APIC API access
-    - 127.0.0.1
   # The following resources must already exist on the APIC,
   # this is a reference to use them
   vrf:                                  # VRF used to create all subnets used by this Kubernetes cluster

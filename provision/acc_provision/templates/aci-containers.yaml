@@ -390,10 +390,13 @@ data:
     {
         "flavor": {{config.flavor|json}},
         "log-level": {{config.logging.controller_log_level|json}},
+        {% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
         "apic-hosts": {{config.aci_config.apic_hosts|json|indent(width=8)}},
+        {% endif %}
         {% if config.aci_config.capic %}
         "max-csr-tunnels": {{config.net_config.max_csr_tunnels|json|indent(width=8)}},
         {% endif %}
+        {% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
         {% if config.aci_config.apic_refreshtime %}
         "apic-refreshtime": "{{config.aci_config.apic_refreshtime|json}}",
         {% endif %}
@@ -405,6 +408,7 @@ data:
         "aci-vmm-controller": {{config.aci_config.vmm_domain.controller|json}},
         "aci-policy-tenant": {{config.kube_config.default_endpoint_group.tenant|json}},
         "aci-app-profile": {{ config.kube_config.default_endpoint_group.app_profile|json }},
+        {% endif %}
         {% if config.aci_config.capic %}
         "lb-type": "None",
         {% endif %}

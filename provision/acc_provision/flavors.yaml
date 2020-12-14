@@ -991,6 +991,8 @@ flavors:
         opflex_mode: True
         system_namespace: kube-system
         use_cnideploy_initcontainer: True
+      istio_config:
+        install_istio: False
     status: Experimental
     hidden: False
     order: 20
