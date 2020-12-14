@@ -588,6 +588,7 @@ data:
     "start": "{{config.kube_config.snat_operator.port_range.start}}"
     "end": "{{config.kube_config.snat_operator.port_range.end}}"
     "ports-per-node": "{{config.kube_config.snat_operator.port_range.ports_per_node}}"
+{% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
 ---
 apiVersion: v1
 kind: Secret
@@ -599,6 +600,7 @@ metadata:
 data:
   user.key: {{config.aci_config.sync_login.key_data|base64enc}}
   user.crt: {{config.aci_config.sync_login.cert_data|base64enc}}
+{% endif %}
 {% if config.aci_config.capic %}
 ---
 apiVersion: v1
@@ -1444,8 +1446,10 @@ spec:
           volumeMounts:
             - name: controller-config-volume
               mountPath: /usr/local/etc/aci-containers/
+{% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
             - name: aci-user-cert-volume
               mountPath: /usr/local/etc/aci-cert/
+{% endif %}
           livenessProbe:
             httpGet:
               path: /status
@@ -1472,9 +1476,11 @@ spec:
           secret:
             secretName: kafka-client-certificates
         {% endif %}
+        {% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
         - name: aci-user-cert-volume
           secret:
             secretName: aci-user-cert
+        {% endif %}
         - name: controller-config-volume
           configMap:
             name: aci-containers-config
