@@ -1125,15 +1125,20 @@ def generate_kube_yaml(config, operator_output, operator_tar, operator_cr_output
         # Generate and convert containers deployment to base64 and add
         # as configMap entry to the operator deployment.
         config["kube_config"]["deployment_base64"] = base64.b64encode(temp.encode('ascii')).decode('ascii')
-        oper_cmap_template = get_jinja_template('aci-operators-configmap.yaml')
-        cmap_temp = ''.join(oper_cmap_template.stream(config=config))
+        if config["flavor"] != "k8s-overlay":
+            oper_cmap_template = get_jinja_template('aci-operators-configmap.yaml')
+            cmap_temp = ''.join(oper_cmap_template.stream(config=config))
 
-        op_template = get_jinja_template('aci-operators.yaml')
-        output_from_parsed_template = op_template.render(config=config)
+            op_template = get_jinja_template('aci-operators.yaml')
+            output_from_parsed_template = op_template.render(config=config)
 
-        # Generate acioperator CRD from template and add it to top
-        op_crd_template = get_jinja_template('aci-operators-crd.yaml')
-        op_crd_output = op_crd_template.render(config=config)
+            # Generate acioperator CRD from template and add it to top
+            op_crd_template = get_jinja_template('aci-operators-crd.yaml')
+            op_crd_output = op_crd_template.render(config=config)
+        else:
+            output_from_parsed_template = ""
+            cmap_temp = ""
+            op_crd_output = ""
 
         new_parsed_yaml = [op_crd_output] + parsed_temp[:cmap_idx] + [cmap_temp] + parsed_temp[cmap_idx:] + [output_from_parsed_template]
         new_deployment_file = '---'.join(new_parsed_yaml)
@@ -1144,28 +1149,30 @@ def generate_kube_yaml(config, operator_output, operator_tar, operator_cr_output
         else:
             op_template.stream(config=config).dump(operator_output)
 
-        # The next few files are to generate tar file with each
-        # containers and operator yaml in separate file. This is needed
-        # by OpenShift >= 4.3. If tar_path is provided(-z), we save the tar
-        # with that filename, else we use the provided containers
-        # deployment filepath. If neither is provided, we don't generate
-        # the tar.
-        if tar_path == "-":
-            tar_path = "/dev/null"
-        else:
-            deployment_docs = yaml.load_all(new_deployment_file, Loader=yaml.SafeLoader)
-            generate_operator_tar(tar_path, deployment_docs, config)
-
-        op_cr_template = get_jinja_template('aci-operators-cr.yaml')
-        if operator_cr_output and operator_cr_output != "/dev/null":
-            if operator_cr_output == "-":
-                operator_cr_output = "/dev/null"
+        if config["flavor"] != "k8s-overlay":
+            # The next few files are to generate tar file with each
+            # containers and operator yaml in separate file. This is needed
+            # by OpenShift >= 4.3. If tar_path is provided(-z), we save the tar
+            # with that filename, else we use the provided containers
+            # deployment filepath. If neither is provided, we don't generate
+            # the tar.
+            if tar_path == "-":
+                tar_path = "/dev/null"
             else:
-                info("Writing kubernetes ACI operator CR to %s" % operator_cr_output)
-        op_cr_template.stream(config=config).dump(operator_cr_output)
+                deployment_docs = yaml.load_all(new_deployment_file, Loader=yaml.SafeLoader)
+                generate_operator_tar(tar_path, deployment_docs, config)
+
+            op_cr_template = get_jinja_template('aci-operators-cr.yaml')
+            if operator_cr_output and operator_cr_output != "/dev/null":
+                if operator_cr_output == "-":
+                    operator_cr_output = "/dev/null"
+                else:
+                    info("Writing kubernetes ACI operator CR to %s" % operator_cr_output)
+            op_cr_template.stream(config=config).dump(operator_cr_output)
 
         info("Writing kubernetes infrastructure YAML to %s" % outname)
-        info("Writing ACI CNI operator tar to %s" % tar_path)
+        if config["flavor"] != "k8s-overlay":
+            info("Writing ACI CNI operator tar to %s" % tar_path)
         info("Apply infrastructure YAML using:")
         info("  %s apply -f %s" %
              (config["kube_config"]["kubectl"], applyname))
