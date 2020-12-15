@@ -844,6 +844,7 @@ spec:
           image: noirolabs/cnideploy:latest
           imagePullPolicy: Always
           securityContext:
+            privileged: true
             capabilities:
               add:
                 - SYS_ADMIN
@@ -856,6 +857,7 @@ spec:
           image: noirolabs/aci-containers-host:latest
           imagePullPolicy: Always
           securityContext:
+            privileged: true
             capabilities:
               add:
                 - SYS_ADMIN
@@ -887,6 +889,10 @@ spec:
               mountPath: /usr/local/etc/opflex-agent-ovs/base-conf.d
             - name: host-config-volume
               mountPath: /usr/local/etc/aci-containers/
+            - mountPath: /run/netns
+              name: host-run-netns
+              readOnly: true
+              mountPropagation: HostToContainer
           livenessProbe:
             httpGet:
               path: /status
@@ -900,6 +906,7 @@ spec:
           image: noirolabs/opflex:latest
           imagePullPolicy: Always
           securityContext:
+            privileged: true
             capabilities:
               add:
                 - NET_ADMIN
@@ -935,6 +942,8 @@ spec:
           command: ["/bin/sh"]
           args: ["/usr/local/bin/launch-mcastdaemon.sh"]
           imagePullPolicy: Always
+          securityContext:
+            privileged: true
           volumeMounts:
             - name: hostvar
               mountPath: /usr/local/var
@@ -972,6 +981,9 @@ spec:
               - key: opflex-agent-config
                 path: local.conf
         - name: opflex-server-config-volume
+        - name: host-run-netns
+          hostPath:
+            path: /run/netns
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -1011,6 +1023,7 @@ spec:
             limits:
               memory: "1Gi"
           securityContext:
+            privileged: true
             capabilities:
               add:
                 - NET_ADMIN
