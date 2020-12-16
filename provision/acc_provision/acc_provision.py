@@ -1135,13 +1135,10 @@ def generate_kube_yaml(config, operator_output, operator_tar, operator_cr_output
             # Generate acioperator CRD from template and add it to top
             op_crd_template = get_jinja_template('aci-operators-crd.yaml')
             op_crd_output = op_crd_template.render(config=config)
+            new_parsed_yaml = [op_crd_output] + parsed_temp[:cmap_idx] + [cmap_temp] + parsed_temp[cmap_idx:] + [output_from_parsed_template]
+            new_deployment_file = '---'.join(new_parsed_yaml)
         else:
-            output_from_parsed_template = ""
-            cmap_temp = ""
-            op_crd_output = ""
-
-        new_parsed_yaml = [op_crd_output] + parsed_temp[:cmap_idx] + [cmap_temp] + parsed_temp[cmap_idx:] + [output_from_parsed_template]
-        new_deployment_file = '---'.join(new_parsed_yaml)
+            new_deployment_file = temp
 
         if operator_output != sys.stdout:
             with open(operator_output, "w") as fh:

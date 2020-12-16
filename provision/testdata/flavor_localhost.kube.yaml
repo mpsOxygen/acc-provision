@@ -1,4 +1,4 @@
----
+
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -342,7 +342,7 @@ spec:
   - name: v1alpha
     served: true
     storage: true
-------
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -1134,4 +1134,3 @@ spec:
                 path: controller.conf
               - key: gbp-server-config
                 path: gbp-server.conf
----
