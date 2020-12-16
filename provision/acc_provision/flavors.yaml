@@ -988,11 +988,12 @@ flavors:
         run_opflex_server_container: True
         run_gbp_container: True
         use_opflex_server_volume: True
-        opflex_mode: True
+        opflex_mode: overlay
         system_namespace: kube-system
         use_cnideploy_initcontainer: True
         use_privileged_containers: True
         use_host_netns_volume: True
+        use_openshift_run_level: False
       istio_config:
         install_istio: False
     status: Experimental

@@ -371,14 +371,6 @@ data:
         },
         "max-nodes-svc-graph": 32,
         "namespace-default-endpoint-group": {
-            "istio-operator": {
-                "policy-space": "kube",
-                "name": "kubernetes|kube-istio"
-            },
-            "istio-system": {
-                "policy-space": "kube",
-                "name": "kubernetes|kube-istio"
-            },
             "kube-system": {
                 "policy-space": "kube",
                 "name": "kubernetes|kube-system"
@@ -450,14 +442,6 @@ data:
             "name": "kubernetes|kube-default"
         },
         "namespace-default-endpoint-group": {
-            "istio-operator": {
-                "policy-space": "kube",
-                "name": "kubernetes|kube-istio"
-            },
-            "istio-system": {
-                "policy-space": "kube",
-                "name": "kubernetes|kube-istio"
-            },
             "kube-system": {
                 "policy-space": "kube",
                 "name": "kubernetes|kube-system"
