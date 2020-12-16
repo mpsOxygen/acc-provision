@@ -696,6 +696,7 @@ rules:
   - ""
   resources:
   - nodes
+  - namespaces
   - pods
   - endpoints
   - services
@@ -723,6 +724,15 @@ rules:
   - "networking.k8s.io"
   resources:
   - networkpolicies
+  verbs:
+  - list
+  - watch
+  - get
+- apiGroups:
+  - "apps"
+  resources:
+  - deployments
+  - replicasets
   verbs:
   - list
   - watch
