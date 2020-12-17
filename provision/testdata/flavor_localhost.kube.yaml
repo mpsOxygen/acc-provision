@@ -443,7 +443,7 @@ data:
                 "policy-space": "kube",
                 "name": "kubernetes|kube-system"
             }        },
-        "enable-drop-log": false
+        "enable-drop-log": true
     }
   opflex-agent-config: |-
     {
@@ -649,14 +649,6 @@ rules:
   verbs:
   - '*'
 - apiGroups:
-  - apps.openshift.io
-  resources:
-  - deploymentconfigs
-  verbs:
-  - list
-  - watch
-  - get
-- apiGroups:
   - discovery.k8s.io
   resources:
   - endpointslices
@@ -686,6 +678,14 @@ rules:
   - list
   - watch
   - get
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
 - apiGroups:
   - "apiextensions.k8s.io"
   resources:
@@ -864,7 +864,7 @@ spec:
             - name: NODE_EPG
               value: "kube-nodes"
             - name: OPFLEX_MODE
-              value: overlay
+              value: "overlay"
           volumeMounts:
             - name: cni-bin
               mountPath: /mnt/cni-bin

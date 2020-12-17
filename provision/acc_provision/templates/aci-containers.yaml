@@ -830,6 +830,7 @@ rules:
   - podifs
   verbs:
   - '*'
+{% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
 - apiGroups:
   - apps.openshift.io
   resources:
@@ -838,6 +839,7 @@ rules:
   - list
   - watch
   - get
+{% endif %}
 - apiGroups:
   - discovery.k8s.io
   resources:
@@ -1132,7 +1134,7 @@ spec:
             - name: NODE_EPG
               value: {{config.aci_config.nodes_epg|json}}
             - name: OPFLEX_MODE
-              value: overlay
+              value: "overlay"
             {% else %}
             - name: NODE_EPG
               value: "{{ config.aci_config.app_profile }}|{{ config.aci_config.nodes_epg }}"
