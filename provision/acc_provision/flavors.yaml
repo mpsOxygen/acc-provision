@@ -973,10 +973,12 @@ flavors:
             stateful: "no"
     order: 9
   k8s-overlay:
-    desc: Kubernetes overlay
+    desc: Kubernetes basic overlay
     default_version: 5.2
     overlay: True
     config:
+      aci_config:
+        use_legacy_kube_naming_convention: True
       kube_config:
         use_aci_anywhere_crd: True
         pod_exec_resources_controller: True
@@ -998,6 +1000,8 @@ flavors:
         install_istio: False
       drop_log_config:
         enable: true
+      snat_operator:
+        snat_namespace: kube-system
     status: Experimental
     hidden: False
     order: 20

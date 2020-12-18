@@ -420,6 +420,7 @@ data:
         "aci-podbd-dn": {{config.aci_config.pod_bd_dn|json}},
         "aci-nodebd-dn": {{config.aci_config.node_bd_dn|json}},
         {% endif %}
+        {% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
         "aci-service-phys-dom": {{config.aci_config.physical_domain.domain|json}},
         "aci-service-encap": {{ ("vlan-" ~ config.net_config.service_vlan)|json }},
         "aci-service-monitor-interval": {{ config.net_config.service_monitor_interval|json }},
@@ -428,6 +429,7 @@ data:
         "aci-vrf-dn": {{ config.aci_config.vrf.dn|json }},
         "aci-l3out": {{config.aci_config.l3out.name|json}},
         "aci-ext-networks": {{ config.aci_config.l3out.external_networks|json|indent(width=8) }},
+        {% endif %}
         {% if config.aci_config.capic or config.kube_config.opflex_mode == "overlay" %}
         "aci-vrf": {{config.aci_config.overlay_vrf|json}},
         {% else %}
@@ -483,13 +485,15 @@ data:
         "installer-provisioned-lb-ip": {{config.aci_config.vmm_domain.nested_inside.installer_provisioned_lb_ip|json}},
         {% endif %}
         "aci-prefix": {{config.aci_config.system_id|json}},
-        {% if config.aci_config.capic %}
+        {% if config.aci_config.capic or config.kube_config.opflex_mode == "overlay" %}
         "aci-vrf": {{config.aci_config.overlay_vrf|json}},
         {% else %}
         "aci-vrf": {{config.aci_config.vrf.name|json}},
         {% endif %}
+        {% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
         "aci-vrf-tenant": {{config.aci_config.vrf.tenant|json}},
         "service-vlan": {{ config.net_config.service_vlan|json }},
+        {% endif %}
         {% if config.aci_config.capic or config.kube_config.opflex_mode != "overlay" %}
         "kubeapi-vlan": {{ config.net_config.kubeapi_vlan|json }},
         "pod-subnet": {{ config.net_config.pod_subnet|json }},

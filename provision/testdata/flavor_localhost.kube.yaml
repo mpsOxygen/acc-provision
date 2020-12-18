@@ -356,14 +356,6 @@ data:
     {
         "flavor": "k8s-overlay",
         "log-level": "debug",
-        "aci-service-phys-dom": "kube-pdom",
-        "aci-service-encap": "vlan-1022",
-        "aci-service-monitor-interval": 5,
-        "aci-pbr-tracking-non-snat": false,
-        "aci-vrf-tenant": "kube",
-        "aci-vrf-dn": "uni/tn-kube/ctx-defaultVrf",
-        "aci-l3out": null,
-        "aci-ext-networks": null,
         "aci-vrf": "defaultVrf",
         "default-endpoint-group": {
             "policy-space": "kube",
@@ -418,8 +410,6 @@ data:
         "aci-vmm-controller": "kube",
         "aci-prefix": "kube",
         "aci-vrf": "defaultVrf",
-        "aci-vrf-tenant": "kube",
-        "service-vlan": 1022,
         "encap-type": "vxlan",
         "aci-infra-vlan": null,
         "cni-netconfig": [
