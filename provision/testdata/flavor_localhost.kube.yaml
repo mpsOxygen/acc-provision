@@ -367,13 +367,13 @@ data:
         "aci-vrf": "defaultVrf",
         "default-endpoint-group": {
             "policy-space": "kube",
-            "name": "kubernetes|kube-default"
+            "name": "kube-default"
         },
         "max-nodes-svc-graph": 32,
         "namespace-default-endpoint-group": {
             "kube-system": {
                 "policy-space": "kube",
-                "name": "kubernetes|kube-system"
+            "name": "kube-default"
             }        },
         "service-ip-pool": [
             {
@@ -436,12 +436,12 @@ data:
         ],
         "default-endpoint-group": {
             "policy-space": "kube",
-            "name": "kubernetes|kube-default"
+            "name": "kube-default"
         },
         "namespace-default-endpoint-group": {
             "kube-system": {
                 "policy-space": "kube",
-                "name": "kubernetes|kube-system"
+            "name": "kube-default"
             }        },
         "enable-drop-log": true
     }
