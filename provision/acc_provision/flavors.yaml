@@ -996,6 +996,7 @@ flavors:
         use_privileged_containers: True
         use_host_netns_volume: True
         use_openshift_run_level: False
+        ep_registry: k8s
       istio_config:
         install_istio: False
       drop_log_config:
