@@ -356,6 +356,7 @@ data:
     {
         "flavor": "k8s-overlay",
         "log-level": "debug",
+        "aci-vrf-tenant": "kube",
         "aci-vrf": "defaultVrf",
         "default-endpoint-group": {
             "policy-space": "kube",
@@ -409,6 +410,7 @@ data:
         "aci-vmm-controller": "kube",
         "aci-prefix": "kube",
         "aci-vrf": "defaultVrf",
+        "aci-vrf-tenant": "kube",
         "encap-type": "vxlan",
         "aci-infra-vlan": null,
         "cni-netconfig": [

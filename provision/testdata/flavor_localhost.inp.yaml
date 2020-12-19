@@ -3,6 +3,9 @@
 #
 aci_config:
   system_id: kube                       # Every opflex cluster on the same fabric must have a distict ID
+  vrf:                                  # VRF used to create all subnets used by this Kubernetes cluster
+    name: defaultVrf          # This should exist, the provisioning tool does not create it
+    tenant: kube        # This can be tenant for this cluster (system-id) or common
   overlay_vrf: defaultVrf
 #
 # Networks used by Kubernetes
