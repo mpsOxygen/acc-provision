@@ -855,7 +855,7 @@ spec:
             - name: NODE_EPG
               value: "kubernetes|kube-nodes"
             - name: OPFLEX_MODE
-              value: "overlay"
+              value: overlay
           volumeMounts:
             - name: cni-bin
               mountPath: /mnt/cni-bin
