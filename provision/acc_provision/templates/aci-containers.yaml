@@ -465,14 +465,18 @@ data:
         },
         "service-ip-pool": {{ config.kube_config.service_ip_pool|json|indent(width=8) }},
         "snat-contract-scope": {{ config.kube_config.snat_operator.contract_scope|json }},
+        {% if config.flavor != "k8s-overlay" %}
         "static-service-ip-pool": {{ config.kube_config.static_service_ip_pool|json|indent(width=8) }},
+        {% endif %}
         {% if config.kube_config.use_external_service_ip_allocator %}
         "allocate-service-ips": false,
         {% endif %}
         "pod-ip-pool": {{ config.kube_config.pod_ip_pool|json|indent(width=8) }},
         "pod-subnet-chunk-size": {{ config.net_config.pod_subnet_chunk_size|json }},
+        {% if config.flavor != "k8s-overlay" %}
         "node-service-ip-pool": {{ config.kube_config.node_service_ip_pool|json|indent(width=8) }},
         "node-service-subnets": {{ config.kube_config.node_service_gw_subnets|json|indent(width=8) }}
+        {% endif %}
         {% if config.kube_config.enable_endpointslice %}
         "enable_endpointslice": true
         {% endif %}

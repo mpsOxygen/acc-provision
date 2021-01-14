@@ -378,12 +378,6 @@ data:
             }
         ],
         "snat-contract-scope": "global",
-        "static-service-ip-pool": [
-            {
-                "end": "10.4.63.254",
-                "start": "10.4.56.2"
-            }
-        ],
         "pod-ip-pool": [
             {
                 "end": "10.2.63.254",
@@ -391,15 +385,6 @@ data:
             }
         ],
         "pod-subnet-chunk-size": 32,
-        "node-service-ip-pool": [
-            {
-                "end": "10.5.63.254",
-                "start": "10.5.56.2"
-            }
-        ],
-        "node-service-subnets": [
-            "10.5.56.1/21"
-        ]
     }
   host-agent-config: |-
     {

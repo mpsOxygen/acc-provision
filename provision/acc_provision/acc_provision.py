@@ -469,15 +469,6 @@ def config_adjust(args, config, prov_apic, no_random):
                 },
             ],
             "static_service_ip_pool": static_service_ip_pool,
-            "node_service_ip_pool": [
-                {
-                    "start": cidr_split(node_svc_subnet)[0],
-                    "end": cidr_split(node_svc_subnet)[1],
-                },
-            ],
-            "node_service_gw_subnets": [
-                node_svc_subnet,
-            ],
             "ep_registry": ep_registry,
             "opflex_mode": opflex_mode,
             "enable_endpointslice": enable_endpointslice,
@@ -486,6 +477,11 @@ def config_adjust(args, config, prov_apic, no_random):
             "configuration_version": token,
         }
     }
+
+    if node_svc_subnet:
+        pool_value = {"start": cidr_split(node_svc_subnet)[0], "end": cidr_split(node_svc_subnet)[1]}
+        adj_config["kube_config"]["node_service_ip_pool"] = [pool_value]
+        adj_config["kube_config"]["node_service_gw_subnets"] = [node_svc_subnet]
 
     if config["aci_config"].get("apic_refreshtime"):  # APIC Subscription refresh timeout value
         apic_refreshtime = config["aci_config"]["apic_refreshtime"]
@@ -508,6 +504,9 @@ def config_adjust(args, config, prov_apic, no_random):
 
     if config["net_config"].get("service_monitor_interval"):
         adj_config["net_config"]["service_monitor_interval"] = config["net_config"]["service_monitor_interval"]
+
+    if not config["net_config"].get("opflex_server_port") and config["flavor"] == "k8s-overlay":
+        adj_config["net_config"]["opflex_server_port"] = 8009
 
     ns_value = {"tenant": tenant, "app_profile": app_profile, "group": namespace_endpoint_group}
 
@@ -1282,12 +1281,15 @@ def check_overlapping_subnets(config):
         "pod_subnet": config["net_config"]["pod_subnet"],
         "node_subnet": config["net_config"]["node_subnet"],
         "extern_dynamic": config["net_config"]["extern_dynamic"],
-        "node_svc_subnet": config["net_config"]["node_svc_subnet"]
     }
 
     # Don't have extern_static field set for OpenShift flavors
     if config["net_config"]["extern_static"]:
         subnet_info["extern_static"] = config["net_config"]["extern_static"]
+
+    # Don't have node_svc_subnet field set for overlay flavors
+    if config["net_config"]["node_svc_subnet"]:
+        subnet_info["node_svc_subnet"] = config["net_config"]["node_svc_subnet"]
 
     for sub1, sub2 in combinations(subnet_info.values(), r=2):
         # Checking if sub1 and sub2 are IPv4 or IPv6
