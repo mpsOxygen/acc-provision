@@ -168,8 +168,11 @@ spec:
                     type: object
                   type: array
                 type: object
+              nodeName:
+                type: string
             required:
             - globalInfos
+            - nodeName
             type: object
           status:
             description: SnatGlobalInfoStatus defines the observed state of SnatGlobalInfo
@@ -1332,7 +1335,6 @@ data:
                 "use_ds_rolling_update": true, 
                 "snat_operator": {
                     "name": "test_snat-operator", 
-                    "globalinfo_name": "test_snatglobalinfo", 
                     "port_range": {
                         "start": 6000, 
                         "end": 62000, 
@@ -2148,8 +2150,6 @@ spec:
               value: ""
             - name: ACI_SNAT_NAMESPACE
               value: "test_namespace"
-            - name: ACI_SNAGLOBALINFO_NAME
-              value: "test_snatglobalinfo"
             - name: ACI_RDCONFIG_NAME
               value: "myrdconfig"
             - name: SYSTEM_NAMESPACE
