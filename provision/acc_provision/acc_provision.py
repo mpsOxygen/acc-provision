@@ -184,7 +184,6 @@ def config_default():
         "calico_config": {
             "net_config": {
                 "block_size" : 26,
-                "service_cluster_ip": "172.30.0.0/16",
                 "encapsulation": "IPIP",
                 "nat_outgoing": False,
             },
@@ -198,7 +197,7 @@ def config_default():
             },
         },
         "service_mesh_config": {
-            "enable": True,
+            "enable": False,
             "mesh_type": "Cisco-SMM",
             "mesh_mode": "primary",
             "version": "v1.8.1",
