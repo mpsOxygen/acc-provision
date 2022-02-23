@@ -5310,6 +5310,7 @@ class ApicKubeConfig(object):
         primary_addr = primary_ip + "/" + node_subnet.split("/")[-1]
         cluster_svc_subnet = self.config["net_config"]["cluster_svc_subnet"]
         floating_ip = self.config["aci_config"]["l3out"]["floating_ip"]
+        secondary_ip = self.config["aci_config"]["l3out"]["secondary_ip"]
         physical_domain_name = self.config["aci_config"]["physical_domain"]["domain"]
         asn = self.config["calico_config"]["bgp_peer_config"]["as_number"]
         logical_node_profile = self.config["aci_config"]["l3out"]["node_profile_name"]
@@ -5366,6 +5367,26 @@ class ApicKubeConfig(object):
                                     collections.OrderedDict(
                                         [
                                             (
+                                                # secondary IP
+                                                "l3extIp",
+                                                collections.OrderedDict(
+                                                    [
+                                                        (
+                                                            "attributes",
+                                                            collections.OrderedDict(
+                                                                [
+                                                                    ("addr", secondary_ip)
+                                                                ]
+                                                            ),
+                                                        ),
+                                                    ]
+                                                ),
+                                            )
+                                        ]
+                                    ),
+                                    collections.OrderedDict(
+                                        [
+                                            (
                                                 # BGP Peer Connectivity Profile
                                                 "bgpPeerP",
                                                 collections.OrderedDict(
@@ -5374,7 +5395,7 @@ class ApicKubeConfig(object):
                                                             "attributes",
                                                             collections.OrderedDict(
                                                                 [
-                                                                    ("addr", cluster_svc_subnet),
+                                                                    ("addr", node_subnet),
                                                                     ("ctrl", "as-override,dis-peer-as-check"),
                                                                 ]
                                                             ),
