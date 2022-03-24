@@ -190,7 +190,7 @@ def config_default():
         },
         "calico_config": {
             "net_config": {
-                "block_size" : 26,
+                "block_size": 26,
                 "encapsulation": "None",
                 "nat_outgoing": "Disabled",
                 "nodeSelector": "all()",
@@ -202,7 +202,7 @@ def config_default():
                 "name": None,
                 "remote_as_number": 64513,
                 "local_as_number": 64512,
-                "racks" : None,
+                "racks": None,
             },
         },
         "service_mesh_config": {
@@ -361,6 +361,7 @@ def normalize_cidr(cidr):
         n = ipaddress.IPv6Network(cidr, strict=False)
     return str(n)
 
+
 def validate_subnet(subnet):
     # Default to IP ending with .1 in that subnet if a .0 subnet was provided For eg, convert 10.0.0.0/16 to 10.0.0.1/16
     if subnet is not None:
@@ -371,6 +372,7 @@ def validate_subnet(subnet):
             return (str(ip + 1) + '/' + mask)
         else:
             return subnet
+
 
 def config_adjust(args, config, prov_apic, no_random):
     system_id = config["aci_config"]["system_id"]
@@ -429,7 +431,7 @@ def config_adjust(args, config, prov_apic, no_random):
         static_service_ip_pool = [{"start": cidr_split(extern_static)[0], "end": cidr_split(extern_static)[1]}]
     else:
         static_service_ip_pool = []
-        
+
     if config["flavor"] != "cko-calico" and node_svc_subnet:
         node_service_ip_pool = [{"start": cidr_split(node_svc_subnet)[0], "end": cidr_split(node_svc_subnet)[1]}]
     else:
@@ -554,19 +556,19 @@ def config_adjust(args, config, prov_apic, no_random):
         },
         "calico_config": {
             "cert_info": {
-                    "username": system_id,
-                    "certfile": "user-%s.crt" % system_id,
-                    "keyfile": "user-%s.key" % system_id,
-                    "cert_reused": False,
-                },
+                "username": system_id,
+                "certfile": "user-%s.crt" % system_id,
+                "keyfile": "user-%s.key" % system_id,
+                "cert_reused": False,
             },
+        },
         "service_mesh_config": {
             "enable": install_sm,
         },
         "registry": {
             "configuration_version": token,
         }
-    }    
+    }
 
     if config["aci_config"].get("apic_refreshtime"):  # APIC Subscription refresh timeout value
         apic_refreshtime = config["aci_config"]["apic_refreshtime"]
@@ -654,6 +656,7 @@ def is_valid_mtu(xval):
         pass
     raise(Exception("Must be integer between %d and %d" % (xmin, xmax)))
 
+
 def is_valid_mtu_VirtualLIfP(xval):
     if xval is None:
         # use default configured on this host
@@ -668,6 +671,7 @@ def is_valid_mtu_VirtualLIfP(xval):
     except ValueError:
         pass
     raise(Exception("Must be integer between %d and %d" % (xmin, xmax)))
+
 
 def is_valid_headroom(xval):
     if xval is None:
@@ -866,7 +870,7 @@ def config_validate(flavor_opts, config):
             }
         else:
             extra_checks = {}
-    if config["flavor"] == "cko-calico":
+    elif config["flavor"] == "cko-calico":
         extra_checks = {
             "net_config/node_subnet": (get(("net_config", "node_subnet")),
                                        required),
@@ -874,15 +878,15 @@ def config_validate(flavor_opts, config):
             "aci_config/l3out/name": (get(("aci_config", "l3out", "name")),
                                       required),
             "aci_config/l3out/mtu": (get(("aci_config", "l3out", "mtu")),
-                                         is_valid_mtu_VirtualLIfP),
+                                     is_valid_mtu_VirtualLIfP),
             "aci_config/l3out/external-networks":
             (get(("aci_config", "l3out", "external_networks")), required),
             "net_config/infra_vlan": (get(("net_config", "infra_vlan")),
                                       required),
             "net_config/extern_dynamic": (get(("net_config", "extern_dynamic")),
                                           required),
-            #"net_config/cluster_svc_subnet": (get(("net_config", "cluster_svc_subnet")),
-                                          #required),
+            # "net_config/cluster_svc_subnet": (get(("net_config", "cluster_svc_subnet")),
+            #                                    required),
         }
     else:
         extra_checks = {
@@ -922,12 +926,12 @@ def config_validate(flavor_opts, config):
 
         if (config["aci_config"]["vmm_domain"]["type"] == "OpenShift"):
             del extra_checks["net_config/extern_static"]
-            
+
         # Remove extra checks for cko-calico flavor
-        #if config["flavor"] == "cko-calico":
-            #del extra_checks["net_config/extern_static"]
-            #del extra_checks["net_config/node_svc_subnet"]
-            #del extra_checks["net_config/service_vlan"]
+        # if config["flavor"] == "cko-calico":
+        #     del extra_checks["net_config/extern_static"]
+        #     del extra_checks["net_config/node_svc_subnet"]
+        #     del extra_checks["net_config/service_vlan"]
 
         if flavor_opts.get("apic", {}).get("use_kubeapi_vlan", True):
             checks["net_config/kubeapi_vlan"] = (
@@ -1071,7 +1075,6 @@ def generate_password(no_random):
 def generate_cert(username, cert_file, key_file):
     reused = False
     if not exists(cert_file) or not exists(key_file):
-        #info("Generating certs for kubernetes controller")
         info("  Private key file: \"%s\"" % key_file)
         info("  Certificate file: \"%s\"" % cert_file)
 
@@ -1109,7 +1112,6 @@ def generate_cert(username, cert_file, key_file):
     else:
         # Do not overwrite previously generated data if it exists
         reused = True
-        #info("Reusing existing certs for kubernetes controller")
         info("  Private key file: \"%s\"" % key_file)
         info("  Certificate file: \"%s\"" % cert_file)
         with open(cert_file, "rb") as certp:
@@ -1117,6 +1119,7 @@ def generate_cert(username, cert_file, key_file):
         with open(key_file, "rb") as keyp:
             key_data = keyp.read()
     return key_data, cert_data, reused
+
 
 def get_jinja_template(file):
     env = Environment(
@@ -1211,33 +1214,34 @@ def generate_rancher_yaml(config, operator_output, operator_tar, operator_cr_out
         else:
             template.stream(config=config).dump(operator_output)
 
+
 def generate_cko_calico_yaml(config, network_operator_output):
     if network_operator_output and network_operator_output != "/dev/null":
         calico_crds_template = get_jinja_template('calico-crds.yaml')
         calico_crds_output = calico_crds_template.render(config=config)
-        
+
         calico_crs_template = get_jinja_template('calico-crs.yaml')
         calico_crs_output = calico_crs_template.render(config=config)
 
         calicoctl_template = get_jinja_template('calicoctl.yaml')
         calicoctl_output = calicoctl_template.render(config=config)
-        
+
         # Render calico bgp peer CR from calico_bgp_peer_template template and add it to calico_net_op_template
         # It has to be rendered in a nested loop
-        bgp_peer=''
+        bgp_peer = ''
         calico_bgp_peer_template = get_jinja_template('calico-bgp-peer.yaml')
         for rack in config["calico_config"]["bgp_peer_config"]["racks"]:
             rackID = config["calico_config"]["bgp_peer_config"]["racks"].index(rack) + 1
             for peerIP in rack:
                 configTemp = dict(config)
                 configTemp["calico_config"]["bgp_peer_config"]["peerIP"] = peerIP
-                configTemp["calico_config"]["bgp_peer_config"]["name"] = peerIP.replace(".","-")
+                configTemp["calico_config"]["bgp_peer_config"]["name"] = peerIP.replace(".", "-")
                 configTemp["calico_config"]["bgp_peer_config"]["rackID"] = rackID
                 bgp_peer = bgp_peer + "\n---\n" + calico_bgp_peer_template.render(config=configTemp)
-        
+
         calico_bgp_config_template = get_jinja_template('calico-bgp-config.yaml')
         calico_bgp_config_output = calico_bgp_config_template.render(config=config)
-        
+
         calico_bgp_spec = calico_bgp_config_output + "\n---\n" + bgp_peer
         # Encode the generated calico bgp spec to base64
         base64_encoded_calico_bgp_spec = base64.b64encode(calico_bgp_spec.encode('ascii')).decode('ascii')
@@ -1247,10 +1251,10 @@ def generate_cko_calico_yaml(config, network_operator_output):
         base64_encoded_calico_crs_spec = base64.b64encode(calico_crs_output.encode('ascii')).decode('ascii')
         # Encode the calicoctl spec to base64
         base64_encoded_calicoctl_spec = base64.b64encode(calicoctl_output.encode('ascii')).decode('ascii')
-        
+
         network_operator_spec_template = get_jinja_template('netop-manifest.yaml')
         network_operator_spec_output = network_operator_spec_template.render(config=config)
-        
+
         network_operator_CR_template = get_jinja_template('network-manager-calico.yaml')
         netopConfig = dict(config)
         netopConfig["calico_config"]["base64_encoded_calico_crds_spec"] = base64_encoded_calico_crds_spec
@@ -1258,13 +1262,14 @@ def generate_cko_calico_yaml(config, network_operator_output):
         netopConfig["calico_config"]["base64_encoded_calico_bgp_spec"] = base64_encoded_calico_bgp_spec
         netopConfig["calico_config"]["base64_encoded_calicoctl_spec"] = base64_encoded_calicoctl_spec
         network_operator_CR_output = network_operator_CR_template.render(config=netopConfig)
-        
+
         network_operator_yaml = network_operator_spec_output + "\n---\n" + network_operator_CR_output
-        
+
         print("writing the deployment file")
-        
+
         with open(network_operator_output, "w") as fh:
             fh.write(network_operator_yaml)
+
 
 def generate_cko_aci_yaml(config, network_operator_output):
     if network_operator_output and network_operator_output != "/dev/null":
@@ -1392,11 +1397,11 @@ def generate_kube_yaml(config, operator_output, operator_tar, operator_cr_output
 
 
 def generate_apic_config(flavor_opts, config, prov_apic, apic_file):
-    apic=None
+    apic = None
     if prov_apic is not None:
         apic = get_apic(config)
     configurator = ApicKubeConfig(config, apic)
-    #ApicKubeConfig.init_apic(config, apic)
+    # ApicKubeConfig.init_apic(config, apic)
     for k, v in flavor_opts.get("apic", {}).items():
         setattr(configurator, k, v)
     apic_config = configurator.get_config(config["aci_config"]["apic_version"])
@@ -1413,7 +1418,7 @@ def generate_apic_config(flavor_opts, config, prov_apic, apic_file):
     sync_login = config["aci_config"]["sync_login"]["username"]
     if prov_apic is not None:
         apic = get_apic(config)
-        #ApicKubeConfig.init_apic(config, apic)
+        # ApicKubeConfig.init_apic(config, apic)
         if apic is not None:
             if prov_apic is True:
                 info("Provisioning configuration in APIC")
@@ -1578,12 +1583,12 @@ def check_overlapping_subnets(config):
             "node_svc_subnet": config["net_config"]["node_svc_subnet"]
         }
     else:
-    # node_svc_subnet is ignored in "cko-calico" flavor
+        # node_svc_subnet is ignored in "cko-calico" flavor
         subnet_info = {
             "pod_subnet": config["net_config"]["pod_subnet"],
             "node_subnet": config["net_config"]["node_subnet"],
             "extern_dynamic": config["net_config"]["extern_dynamic"],
-            #"cluster_svc_subnet": config["net_config"]["cluster_svc_subnet"]
+            # "cluster_svc_subnet": config["net_config"]["cluster_svc_subnet"]
         }
 
     # Don't have extern_static field set for OpenShift flavors
@@ -1802,7 +1807,6 @@ def provision(args, apic_file, no_random):
 
         ret = generate_apic_config(flavor_opts, config, prov_apic, apic_file)
         return ret
-    
 
     if config["registry"]["aci_cni_operator_version"] is not None:
         config["registry"]["aci_containers_operator_version"] = config["registry"]["aci_cni_operator_version"]
@@ -1887,7 +1891,6 @@ def main(args=None, apic_file=None, no_random=False):
             success = False
             err("%s: %s" % (e.__class__.__name__, e))
             traceback.print_exception(*sys.exc_info())
-            
 
     if not success:
         sys.exit(1)
