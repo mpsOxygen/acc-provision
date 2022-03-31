@@ -268,7 +268,7 @@ class Apic(object):
                 self.errors += 1
                 err("Error in provisioning %s: %s" % (path, str(e)))
 
-    def unprovision(self, data, system_id, tenant, vrf_tenant, cluster_tenant, old_naming, cfg, l3out_tn, l3out_name, lnodep, lifp):
+    def unprovision(self, data, system_id, tenant, vrf_tenant, cluster_tenant, old_naming, cfg, l3out_name, lnodep, lifp):
         cluster_tenant_path = "/api/mo/uni/tn-%s.json" % cluster_tenant
         shared_resources = ["/api/mo/uni/infra.json", "/api/mo/uni/tn-common.json", cluster_tenant_path]
 
@@ -303,7 +303,7 @@ class Apic(object):
                                             self.check_resp(resp)
                                             dbg("%s: %s" % (del_path, resp.text))
             if cfg["flavor"] == "cko-calico":
-                fsvi_path = "/api/node/mo/uni/tn-%s/out-%s/lnodep-%s/lifp-%s.json" % (l3out_tn, l3out_name, lnodep, lifp)
+                fsvi_path = "/api/node/mo/uni/tn-%s/out-%s/lnodep-%s/lifp-%s.json" % (tenant, l3out_name, lnodep, lifp)
                 fsvi_path += "?query-target=children&target-subtree-class=l3extVirtualLIfP"
                 resp = self.get(fsvi_path)
                 self.check_resp(resp)
@@ -315,7 +315,7 @@ class Apic(object):
                         resp = self.delete(del_path)
                         self.check_resp(resp)
                         dbg("%s: %s" % (del_path, resp.text))
-                conf_node_path = "/api/node/mo/uni/tn-%s/out-%s/lnodep-%s.json" % (l3out_tn, l3out_name, lnodep)
+                conf_node_path = "/api/node/mo/uni/tn-%s/out-%s/lnodep-%s.json" % (tenant, l3out_name, lnodep)
                 conf_node_path += "?query-target=children&target-subtree-class=l3extRsNodeL3OutAtt"
                 resp = self.get(conf_node_path)
                 self.check_resp(resp)
@@ -327,11 +327,11 @@ class Apic(object):
                         resp = self.delete(del_path)
                         self.check_resp(resp)
                         dbg("%s: %s" % (del_path, resp.text))
-                bgp_prot_path = "/api/node/mo/uni/tn-%s/out-%s/lnodep-%s/protp.json" % (l3out_tn, l3out_name, lnodep)
+                bgp_prot_path = "/api/node/mo/uni/tn-%s/out-%s/lnodep-%s/protp.json" % (tenant, l3out_name, lnodep)
                 resp = self.delete(bgp_prot_path)
                 self.check_resp(resp)
                 dbg("%s: %s" % (bgp_prot_path, resp.text))
-                bgp_res_path = "/api/node/mo/uni/tn-%s.json" % l3out_tn
+                bgp_res_path = "/api/node/mo/uni/tn-%s.json" % tenant
                 bgp_res_path += "?query-target=children&target-subtree-class=bgpCtxPol,bgpCtxAfPol,bgpBestPathCtrlPol,bgpPeerPfxPol"
                 resp = self.get(bgp_res_path)
                 self.check_resp(resp)
@@ -344,7 +344,7 @@ class Apic(object):
                             resp = self.delete(del_path)
                             self.check_resp(resp)
                             dbg("%s: %s" % (del_path, resp.text))
-                bgp_route_path = "/api/node/mo/uni/tn-%s/out-%s.json" % (l3out_tn, l3out_name)
+                bgp_route_path = "/api/node/mo/uni/tn-%s/out-%s.json" % (tenant, l3out_name)
                 bgp_route_path += "?query-target=children&target-subtree-class=rtctrlProfile"
                 resp = self.get(bgp_route_path)
                 self.check_resp(resp)
@@ -5268,9 +5268,9 @@ class ApicKubeConfig(object):
 
     def logical_node_profile(self):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
-        lnodep = self.config["aci_config"]["l3out"]["node_profile_name"]
-        lifp = self.config["aci_config"]["l3out"]["int_prof_name"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
+        lnodep = self.config["aci_config"]["l3out"]["svi"]["node_profile_name"]
+        lifp = self.config["aci_config"]["l3out"]["svi"]["int_prof_name"]
         path = "/api/mo/uni/tn-%s/out-%s/lnodep-%s.json" % (l3out_tn, l3out_name, lnodep)
         data = collections.OrderedDict(
             [
@@ -5320,8 +5320,8 @@ class ApicKubeConfig(object):
 
     def add_configured_nodes(self, node_id, primary_ip):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
-        lnodep = self.config["aci_config"]["l3out"]["node_profile_name"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
+        lnodep = self.config["aci_config"]["l3out"]["svi"]["node_profile_name"]
         router_id = "1.1.4." + primary_ip.split(".")[-1]
         path = "/api/mo/uni/tn-%s/out-%s/lnodep-%s/rsnodeL3OutAtt-[%s].json" % (l3out_tn, l3out_name, lnodep, node_id)
         data = collections.OrderedDict(
@@ -5349,19 +5349,19 @@ class ApicKubeConfig(object):
 
     def calico_floating_svi(self, node_id, primary_ip):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
-        vlan_id = self.config["aci_config"]["l3out"]["vlan_id"]
-        mtu = self.config["aci_config"]["l3out"]["mtu"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
+        vlan_id = self.config["aci_config"]["l3out"]["svi"]["vlan_id"]
+        mtu = self.config["aci_config"]["l3out"]["svi"]["mtu"]
         node_subnet = self.config["net_config"]["node_subnet"]
         primary_addr = primary_ip + "/" + node_subnet.split("/")[-1]
-        floating_ip = self.config["aci_config"]["l3out"]["floating_ip"]
-        secondary_ip = self.config["aci_config"]["l3out"]["secondary_ip"]
+        floating_ip = self.config["aci_config"]["l3out"]["svi"]["floating_ip"]
+        secondary_ip = self.config["aci_config"]["l3out"]["svi"]["secondary_ip"]
         physical_domain_name = self.config["aci_config"]["physical_domain"]["domain"]
         remote_asn = self.config["calico_config"]["bgp_peer_config"]["remote_as_number"]
         local_asn = self.config["calico_config"]["bgp_peer_config"]["local_as_number"]
         password = self.config["calico_config"]["bgp_config"]["bgp_secret"]
-        logical_node_profile = self.config["aci_config"]["l3out"]["node_profile_name"]
-        int_prof = self.config["aci_config"]["l3out"]["int_prof_name"]
+        logical_node_profile = self.config["aci_config"]["l3out"]["svi"]["node_profile_name"]
+        int_prof = self.config["aci_config"]["l3out"]["svi"]["int_prof_name"]
         path = "/api/mo/uni/tn-%s/out-%s/lnodep-%s/lifp-%s/vlifp-[%s]-[vlan-%s].json" % (l3out_tn, l3out_name, logical_node_profile, int_prof, node_id, vlan_id)
         data = collections.OrderedDict(
             [
@@ -5529,7 +5529,7 @@ class ApicKubeConfig(object):
     # Set BGP Route Control Enforcement to Import/Export
     def bgp_route_control(self):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         path = "/api/mo/uni/tn-%s/out-%s.json" % (l3out_tn, l3out_name)
         data = collections.OrderedDict(
             [
@@ -5556,7 +5556,7 @@ class ApicKubeConfig(object):
     # Add subnets to ext EPG
     def add_subnets_to_ext_epg(self):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         pod_subnet = self.config["net_config"]["pod_subnet"]
         node_subnet = self.config["net_config"]["node_subnet"]
         cluster_svc_subnet = self.config["net_config"]["cluster_svc_subnet"]
@@ -5678,7 +5678,7 @@ class ApicKubeConfig(object):
 
     def enable_bgp(self):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         path = "/api/mo/uni/tn-%s/out-%s/bgpExtP.json" % (l3out_tn, l3out_name)
         data = collections.OrderedDict(
             [
@@ -5703,7 +5703,7 @@ class ApicKubeConfig(object):
     # Create bgp timer
     def bgp_timers(self):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         path = "/api/mo/uni/tn-%s/bgpCtxP-%s-Timers.json" % (l3out_tn, l3out_name)
         data = collections.OrderedDict(
             [
@@ -5735,7 +5735,7 @@ class ApicKubeConfig(object):
     # Create BGP Best Path Policy
     def bgp_relax_as_policy(self):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         path = "/api/mo/uni/tn-%s/bestpath-%s-Relax-AS.json" % (l3out_tn, l3out_name)
         data = collections.OrderedDict(
             [
@@ -5763,8 +5763,8 @@ class ApicKubeConfig(object):
     # Create BGP Protocol Profile
     def bgp_prot_pfl(self):
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
-        logical_node_profile = self.config["aci_config"]["l3out"]["node_profile_name"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
+        logical_node_profile = self.config["aci_config"]["l3out"]["svi"]["node_profile_name"]
         path = "/api/mo/uni/tn-%s/out-%s/lnodep-%s/protp.json" % (l3out_tn, l3out_name, logical_node_profile)
         data = collections.OrderedDict(
             [
@@ -5833,7 +5833,7 @@ class ApicKubeConfig(object):
 
     # Create BGP Address Family Context Policy
     def bgp_addr_family_context(self):
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         l3out_name = self.config["aci_config"]["l3out"]["name"]
         path = "/api/mo/uni/tn-%s/bgpCtxAfP-%s.json" % (l3out_tn, l3out_name)
         data = collections.OrderedDict(
@@ -5862,9 +5862,9 @@ class ApicKubeConfig(object):
 
     # Map BGP Address Family Context Policy to Calico VRF for V4
     def bgp_addr_family_context_to_vrf(self):
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_vrf = self.config["aci_config"]["l3out"]["vrf_name"]
+        l3out_vrf = self.config["aci_config"]["vrf"]["name"]
         path = "/api/mo/uni/tn-%s/ctx-%s/rsctxToBgpCtxAfPol-[%s]-ipv4-ucast.json" % (l3out_tn, l3out_vrf, l3out_name)
         data = collections.OrderedDict(
             [
@@ -5891,9 +5891,9 @@ class ApicKubeConfig(object):
 
     # Map BGP Address Family Context Policy to Calico VRF for V6
     def bgp_addr_family_context_to_vrf_v6(self):
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         l3out_name = self.config["aci_config"]["l3out"]["name"]
-        l3out_vrf = self.config["aci_config"]["l3out"]["vrf_name"]
+        l3out_vrf = self.config["aci_config"]["vrf"]["name"]
         path = "/api/mo/uni/tn-%s/ctx-%s/rsctxToBgpCtxAfPol-[%s]-ipv6-ucast.json" % (l3out_tn, l3out_vrf, l3out_name)
         data = collections.OrderedDict(
             [
@@ -5919,7 +5919,7 @@ class ApicKubeConfig(object):
         return path, data
 
     def export_match_rule(self):
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         l3out_name = self.config["aci_config"]["l3out"]["name"]
         pod_subnet = self.config["net_config"]["pod_subnet"]
         path = "/api/mo/uni/tn-%s/subj-%s-export-match.json" % (l3out_tn, l3out_name)
@@ -5972,7 +5972,7 @@ class ApicKubeConfig(object):
         return path, data
 
     def attach_rule_to_default_export_pol(self):
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         l3out_name = self.config["aci_config"]["l3out"]["name"]
         path = "/api/mo/uni/tn-%s/out-%s/prof-default-export.json" % (l3out_tn, l3out_name)
         data = collections.OrderedDict(
@@ -6050,7 +6050,7 @@ class ApicKubeConfig(object):
         return path, data
 
     def import_match_rule(self):
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         l3out_name = self.config["aci_config"]["l3out"]["name"]
         pod_subnet = self.config["net_config"]["pod_subnet"]
         node_subnet = self.config["net_config"]["node_subnet"]
@@ -6169,7 +6169,7 @@ class ApicKubeConfig(object):
         return path, data
 
     def attach_rule_to_default_import_pol(self):
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         l3out_name = self.config["aci_config"]["l3out"]["name"]
         path = "/api/mo/uni/tn-%s/out-%s/prof-default-import.json" % (l3out_tn, l3out_name)
         data = collections.OrderedDict(
@@ -6247,7 +6247,7 @@ class ApicKubeConfig(object):
         return path, data
 
     def bgp_peer_prefix(self):
-        l3out_tn = self.config["aci_config"]["l3out"]["l3out_tenant"]
+        l3out_tn = self.config["aci_config"]["vrf"]["tenant"]
         l3out_name = self.config["aci_config"]["l3out"]["name"]
         path = "/api/mo/uni/tn-%s/bgpPfxP-%s.json" % (l3out_tn, l3out_name)
         data = collections.OrderedDict(
