@@ -1,35 +1,3 @@
-/api/mo/uni/infra/vlanns-[kube-pool]-static.json
-{
-    "fvnsVlanInstP": {
-        "attributes": {
-            "name": "kube-pool",
-            "allocMode": "static",
-            "annotation": "orchestrator:aci-containers-controller"
-        },
-        "children": [
-            {
-                "fvnsEncapBlk": {
-                    "attributes": {
-                        "allocMode": "static",
-                        "from": "vlan-4001",
-                        "to": "vlan-4001",
-                        "annotation": "orchestrator:aci-containers-controller"
-                    }
-                }
-            },
-            {
-                "fvnsEncapBlk": {
-                    "attributes": {
-                        "allocMode": "static",
-                        "from": "vlan-4003",
-                        "to": "vlan-4003",
-                        "annotation": "orchestrator:aci-containers-controller"
-                    }
-                }
-            }
-        ]
-    }
-}
 /api/mo/uni/infra/vlanns-[kube-vpool]-dynamic.json
 {
     "fvnsVlanInstP": {
@@ -66,26 +34,6 @@
                     "attributes": {
                         "from": "225.20.1.1",
                         "to": "225.20.255.255",
-                        "annotation": "orchestrator:aci-containers-controller"
-                    }
-                }
-            }
-        ]
-    }
-}
-/api/mo/uni/phys-kube-pdom.json
-{
-    "physDomP": {
-        "attributes": {
-            "dn": "uni/phys-kube-pdom",
-            "name": "kube-pdom",
-            "annotation": "orchestrator:aci-containers-controller"
-        },
-        "children": [
-            {
-                "infraRsVlanNs": {
-                    "attributes": {
-                        "tDn": "uni/infra/vlanns-[kube-pool]-static",
                         "annotation": "orchestrator:aci-containers-controller"
                     }
                 }

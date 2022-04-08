@@ -468,10 +468,12 @@ class ApicKubeConfig(object):
                     data.append((path, None))
 
         data = []
-        update(data, self.pdom_pool())
+        if "esx" not in self.config['flavor']:
+            update(data, self.pdom_pool())
         update(data, self.vdom_pool())
         update(data, self.mcast_pool())
-        update(data, self.phys_dom())
+        if "esx" not in self.config['flavor']:
+            update(data, self.phys_dom())
         update(data, self.kube_dom(apic_version))
         update(data, self.nested_dom())
         update(data, self.associate_aep())
